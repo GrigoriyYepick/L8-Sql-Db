@@ -38,32 +38,32 @@ EXPLAIN EXTENDED shows the full scan plan:
 <br>
 
 ### With INDEX
+```
+CREATE INDEX Dates_idx USING BTREE
+ON Users (DATE, FirstName, SecondName);
+```
 
-EXPLAIN EXTENDED still show full scan as the best option
-
-But with FORCE INDEX it takes index into account.
-
-Select 50% of rows with FORCE INDEX is slower and takes ~53 seconds.
+Select 50% of rows takes ~13 seconds.
 
 Plan:
 ```
-+----+-------------+-------+-------+---------------+-----------+---------+-----+----------+-----------------------+
-| id | select_type | table | type  | possible_keys | key       | key_len | ref | rows     | extra                 |
-+----+-------------+-------+-------+---------------+-----------+---------+-----+----------+-----------------------+
-|  1 | SIMPLE      | Users | range | Dates_idx     | Dates_idx | 3       |     | 20000000 | Using index condition |
-+----+-------------+-------+-------+---------------+-----------+---------+-----+----------+-----------------------+
++----+-------------+-------+-------+---------------+-----------+---------+-----+----------+--------------------------+
+| id | select_type | table | type  | possible_keys | key       | key_len | ref | rows     | extra                    |
++----+-------------+-------+-------+---------------+-----------+---------+-----+----------+--------------------------+
+|  1 | SIMPLE      | Users | range | Dates_idx     | Dates_idx | 3       |     | 20000000 | Using where; Using index |
++----+-------------+-------+-------+---------------+-----------+---------+-----+----------+--------------------------+
 ```
 <br>
 
-Select 10% of rows with FORCE INDEX is faster and takes ~10 seconds.
+Select 10% of rows takes ~3 seconds.
 
 Plan:
 ```
-+----+-------------+-------+-------+---------------+-----------+---------+-----+---------+-----------------------+
-| id | select_type | table | type  | possible_keys | key       | key_len | ref | rows    | extra                 |
-+----+-------------+-------+-------+---------------+-----------+---------+-----+---------+-----------------------+
-|  1 | SIMPLE      | Users | range | Dates_idx     | Dates_idx | 3       |     | 8777968 | Using index condition |
-+----+-------------+-------+-------+---------------+-----------+---------+-----+---------+-----------------------+
++----+-------------+-------+-------+---------------+-----------+---------+-----+---------+--------------------------+
+| id | select_type | table | type  | possible_keys | key       | key_len | ref | rows    | extra                    |
++----+-------------+-------+-------+---------------+-----------+---------+-----+---------+--------------------------+
+|  1 | SIMPLE      | Users | range | Dates_idx     | Dates_idx | 3       |     | 7853414 | Using where; Using index |
++----+-------------+-------+-------+---------------+-----------+---------+-----+---------+--------------------------+
 ```
 <br>
 
@@ -77,9 +77,14 @@ All queries are placed here
 With 40 million of users:
 ```
 DB_NAME	TABLE_NAME	TABLE_SIZE_in_GB
- db1	   Users	       2.22
+ db1	   Users	       3.71
 ```
-With 20 million of users, table size remains the same.
+
+After deletion 50% of rows.
+```
+DB_NAME	TABLE_NAME	TABLE_SIZE_in_GB
+ db1	   Users	       3.17
+```
 
 After 
 ```
@@ -87,5 +92,5 @@ OPTIMIZE TABLE Users;
 ```
 ```
 DB_NAME	TABLE_NAME	TABLE_SIZE_in_GB
- db1	   Users	       1.23
+ db1	   Users	       1.59
 ```
