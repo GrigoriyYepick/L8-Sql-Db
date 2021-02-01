@@ -13,34 +13,25 @@ EXPLAIN EXTENDED SELECT * FROM Users
 WHERE Date > '2010-10-01';
 
 # Index
-# ~1.5 min
 CREATE INDEX Dates_idx USING BTREE
-  ON Users (DATE);
+ON Users (DATE, FirstName, SecondName);
+
+# DROP INDEX Dates_idx ON Users
 
 # Select 1/2 of data
-# ~53 sec
-# slower then full scan
-SELECT * FROM Users FORCE INDEX (Dates_idx)
+# ~13 sec
+SELECT Id, DATE, FirstName, SecondName FROM Users
+WHERE Date > '2010-10-01';
+
+# Plan
+EXPLAIN EXTENDED SELECT Id, DATE, FirstName, SecondName FROM Users 
 WHERE Date > '2010-10-01';
 
 # Select 1/10 of datta 
-# ~ 10 sec
-# faster then full scan
-SELECT * FROM Users FORCE INDEX (Dates_idx) 
+# ~ 3 sec
+SELECT Id, DATE, FirstName, SecondName FROM Users
 WHERE DATE < '2001-08-01';
 
-# Plan without forcing Index - full scan
-EXPLAIN EXTENDED SELECT * FROM Users 
-WHERE Date > '2010-10-01';
-
-# Plan with forcing Index
-EXPLAIN EXTENDED SELECT * FROM Users FORCE INDEX (Dates_idx) 
-WHERE Date > '2010-10-01';
-
-# Plan without forcing Index - full scan
-EXPLAIN EXTENDED SELECT * FROM Users
-WHERE DATE < '2001-08-01';
-
-# Plan without forcing Index
-EXPLAIN EXTENDED SELECT * FROM Users FORCE INDEX (Dates_idx) 
+# Plan
+EXPLAIN EXTENDED SELECT Id, DATE, FirstName, SecondName FROM Users
 WHERE DATE < '2001-08-01';
