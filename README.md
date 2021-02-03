@@ -45,6 +45,11 @@ ON Users (DATE, FirstName, SecondName);
 
 Select 50% of rows takes ~13 seconds.
 
+***I think speed up only on 50% from original value is explained with my table specifics.
+I used cvs files with ~340: names, sirnames and dates to make cross join to init a table.
+So event SELECT by one date gives 116 360 rows.
+So bassically speed explained with a lot of data.***
+
 Plan:
 ```
 +----+-------------+-------+-------+---------------+-----------+---------+-----+----------+--------------------------+
